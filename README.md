@@ -5,6 +5,8 @@ tracking OPAM packages that requires patches in order to compile with the OCaml 
 
 Eventually, all patches will be sent to their respective upstream.
 
+This repository is also available through http : http://flambda.ocamlpro.com/opam-flambda-repository-overlay
+
 ## License
 
 All the metadata contained in that repository are licensed under the
