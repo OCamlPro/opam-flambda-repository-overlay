@@ -1,0 +1,12 @@
+diff -ru bisect_ppx-0.2/src/syntax/instrumentPpx.ml bisect_ppx.0.2.new/src/syntax/instrumentPpx.ml
+--- bisect_ppx-0.2/src/syntax/instrumentPpx.ml	2015-05-15 21:27:23.000000000 +0200
++++ bisect_ppx.0.2.new/src/syntax/instrumentPpx.ml	2015-06-15 16:12:15.110766325 +0200
+@@ -47,7 +47,7 @@
+ let apply_nolabs ?loc lid el =
+   Exp.apply ?loc
+     (Exp.ident ?loc lid)
+-    (List.map (fun e -> ("",e)) el)
++    (List.map (fun e -> (Nolabel,e)) el)
+ 
+ 
+ (* Creates the marking expression for given file, offset, and kind.

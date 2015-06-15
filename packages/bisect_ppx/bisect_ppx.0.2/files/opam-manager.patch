@@ -1,0 +1,11 @@
+diff -ru bisect_ppx-0.2/Makefile bisect_ppx.0.2.new/Makefile
+--- bisect_ppx-0.2/Makefile	2015-05-15 21:27:23.000000000 +0200
++++ bisect_ppx.0.2.new/Makefile	2015-06-15 16:10:57.998143439 +0200
+@@ -104,6 +104,6 @@
+ generate: FORCE
+ 	echo '$(PROJECT_NAME).cma' > $(PROJECT_NAME).itarget
+ 	(test -x $(PATH_OCAML_PREFIX)/bin/ocamlopt && echo '$(PROJECT_NAME).cmxa' >> $(PROJECT_NAME).itarget) || true
+-	(test -x $(PATH_OCAML_PREFIX)/bin/ocamljava && echo '$(PROJECT_NAME).cmja' >> $(PROJECT_NAME).itarget) || true
++#	(test -x $(PATH_OCAML_PREFIX)/bin/ocamljava && echo '$(PROJECT_NAME).cmja' >> $(PROJECT_NAME).itarget) || true
+ 
+ FORCE:
