@@ -22,4 +22,5 @@ depends: [
 patches: [
   "label.patch"
   "opam-manager.patch"
+  "lexer.patch"
 ]

@@ -1,0 +1,29 @@
+diff -ur bisect_ppx.0.2/src/syntax/commentsLexer.mll bisect_ppx.0.2.patched/src/syntax/commentsLexer.mll
+--- bisect_ppx.0.2/src/syntax/commentsLexer.mll	2015-05-15 21:27:23.000000000 +0200
++++ bisect_ppx.0.2.patched/src/syntax/commentsLexer.mll	2015-06-16 14:50:56.566241011 +0200
+@@ -61,6 +61,8 @@
+ let eol = ('\010' | '\013' |"\013\010" | "\010\013")
+ 
+ rule normal ignored marked stack = parse
++| "'\"'"                    { normal ignored marked stack lexbuf }
++| "'\\\"'"                  { normal ignored marked stack lexbuf }
+ | "\""                      { string 0 ignored marked stack lexbuf }
+ | "(*BISECT-IGNORE-BEGIN*)" { let line = get_line lexbuf in
+                               Stack.push line stack;
+@@ -84,6 +86,7 @@
+ | _                         { normal ignored marked stack lexbuf }
+ 
+ and string n ignored marked stack = parse
++| "\\\\"                    { string n ignored marked stack lexbuf }
+ | "\\\""                    { string n ignored marked stack lexbuf }
+ | "\""                      { if n = 0 then
+                                 normal ignored marked stack lexbuf
+@@ -99,6 +102,8 @@
+                                 normal ignored marked stack lexbuf
+                               else
+                                 comment (pred n) ignored marked stack lexbuf }
++| "'\"'"                    { comment n ignored marked stack lexbuf }
++| "'\\\"'"                  { comment n ignored marked stack lexbuf }
+ | "\""                      { string n ignored marked stack lexbuf }
+ | eol                       { incr_line lexbuf; comment n ignored marked stack lexbuf }
+ | eof                       { fail lexbuf Unexpected_end_of_file }
