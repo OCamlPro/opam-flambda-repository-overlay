@@ -1,0 +1,20 @@
+opam-version: "1.3"
+maintainer: "contact@ocamlpro.com"
+build: [
+  ["./configure" "-prefix" prefix "-with-bisect-opt"]
+  [make "-f" "Makefile.bisect" "prepare"]
+]
+install: [
+  ["cp" "ocamlc.opt" "%{bin}%/ocamlc-bisect.opt"]
+  ["cp" "ocamlopt.opt" "%{bin}%/ocamlopt-bisect.opt"]
+]
+build-test: [
+  [make "-f" "Makefile.bisect" "run"]
+  [make "-f" "Makefile.bisect" "report"]
+  ["cp" "-r" "testsuite/coverage" "%{lib}%/coverage"]
+  ["cp" "testsuite/_log" "%{lib}%/"]
+]
+depends: [
+  "bisect_ppx"
+]
+available: [ switch = "4.03.0+flambda" ]
