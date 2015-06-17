@@ -4,15 +4,19 @@ build: [
   ["./configure" "-prefix" prefix "-with-bisect-opt"]
   [make "-f" "Makefile.bisect" "prepare"]
 ]
+build-test: [
+  [make "-f" "Makefile.bisect" "run"]
+  [make "-f" "Makefile.bisect" "report"]
+  [make "-f" "Makefile.bisect" "install-report" "LIB=%{lib}%/ocaml-bisect"]
+]
 install: [
   ["cp" "ocamlc.opt" "%{bin}%/ocamlc-bisect.opt"]
   ["cp" "ocamlopt.opt" "%{bin}%/ocamlopt-bisect.opt"]
 ]
-build-test: [
-  [make "-f" "Makefile.bisect" "run"]
-  [make "-f" "Makefile.bisect" "report"]
-  ["cp" "-r" "testsuite/coverage" "%{lib}%/coverage"]
-  ["cp" "testsuite/_log" "%{lib}%/"]
+remove: [
+  ["rm" "-f" "%{bin}%/ocamlc-bisect.opt"]
+  ["rm" "-f" "%{bin}%/ocamlopt-bisect.opt"]
+  ["rm" "-f" "%{lib}%/ocaml-bisect"]
 ]
 depends: [
   "bisect_ppx"
