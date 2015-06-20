@@ -1,0 +1,60 @@
+From e65267337e9c3a2e000891ae8778e4fecce6211b Mon Sep 17 00:00:00 2001
+From: Louis Gesbert <louis.gesbert@ocamlpro.com>
+Date: Sat, 20 Jun 2015 15:12:26 +0900
+Subject: [PATCH] Fix for 4.03
+
+---
+ src/ocplib/system/simpleConfig.ml4 | 35 +----------------------------------
+ 1 file changed, 1 insertion(+), 34 deletions(-)
+
+diff --git a/src/ocplib/system/simpleConfig.ml4 b/src/ocplib/system/simpleConfig.ml4
+index 77ba8f9..0325c7b 100644
+--- a/src/ocplib/system/simpleConfig.ml4
++++ b/src/ocplib/system/simpleConfig.ml4
+@@ -328,42 +328,9 @@ let exit_exn = Exit
+ 
+ 
+ let unsafe_get = String.unsafe_get
+-external is_printable : char -> bool = "caml_is_printable"
+ let unsafe_set = String.unsafe_set
+ 
+-let escaped s =
+-  let n = ref 0 in
+-  for i = 0 to String.length s - 1 do
+-    n :=
+-      !n +
+-        (match unsafe_get s i with
+-           '"' | '\\' -> 2
+-         | '\n' | '\t' -> 1
+-         | c -> if is_printable c then 1 else 4)
+-  done;
+-  if !n = String.length s then s
+-  else
+-    let s' = String.create !n in
+-    n := 0;
+-    for i = 0 to String.length s - 1 do
+-      begin match unsafe_get s i with
+-        '"' | '\\' as c -> unsafe_set s' !n '\\'; incr n; unsafe_set s' !n c
+-      | '\n' | '\t' as c -> unsafe_set s' !n c
+-      | c ->
+-          if is_printable c then unsafe_set s' !n c
+-          else
+-            let a = int_of_char c in
+-            unsafe_set s' !n '\\';
+-            incr n;
+-            unsafe_set s' !n (char_of_int (48 + a / 100));
+-            incr n;
+-            unsafe_set s' !n (char_of_int (48 + a / 10 mod 10));
+-            incr n;
+-            unsafe_set s' !n (char_of_int (48 + a mod 10))
+-      end;
+-      incr n
+-    done;
+-    s'
++let escaped s = String.escaped s
+ 
+ let safe_string s =
+   if s = "" then "\"\""
+-- 
+2.1.4
+
