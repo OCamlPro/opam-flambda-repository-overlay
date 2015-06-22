@@ -1,0 +1,261 @@
+diff --git a/src/ppx_deriving.ml b/src/ppx_deriving.ml
+index 757feb9..cf50fd1 100644
+--- a/src/ppx_deriving.ml
++++ b/src/ppx_deriving.ml
+@@ -232,22 +232,22 @@ let fresh_var bound =
+   loop 0
+ 
+ let poly_fun_of_type_decl type_decl expr =
+-  fold_right_type_decl (fun name expr -> Exp.fun_ "" None (pvar ("poly_"^name)) expr) type_decl expr
++  fold_right_type_decl (fun name expr -> Exp.fun_ Nolabel None (pvar ("poly_"^name)) expr) type_decl expr
+ 
+ let poly_fun_of_type_ext type_ext expr =
+-  fold_right_type_ext (fun name expr -> Exp.fun_ "" None (pvar ("poly_"^name)) expr) type_ext expr
++  fold_right_type_ext (fun name expr -> Exp.fun_ Nolabel None (pvar ("poly_"^name)) expr) type_ext expr
+ 
+ let poly_apply_of_type_decl type_decl expr =
+-  fold_left_type_decl (fun expr name -> Exp.apply expr ["", evar ("poly_"^name)]) expr type_decl
++  fold_left_type_decl (fun expr name -> Exp.apply expr [Nolabel, evar ("poly_"^name)]) expr type_decl
+ 
+ let poly_apply_of_type_ext type_ext expr =
+-  fold_left_type_ext (fun expr name -> Exp.apply expr ["", evar ("poly_"^name)]) expr type_ext
++  fold_left_type_ext (fun expr name -> Exp.apply expr [Nolabel, evar ("poly_"^name)]) expr type_ext
+ 
+ let poly_arrow_of_type_decl fn type_decl typ =
+-  fold_right_type_decl (fun name typ -> Typ.arrow "" (fn (Typ.var name)) typ) type_decl typ
++  fold_right_type_decl (fun name typ -> Typ.arrow Nolabel (fn (Typ.var name)) typ) type_decl typ
+ 
+ let poly_arrow_of_type_ext fn type_ext typ =
+-  fold_right_type_ext (fun  name typ -> Typ.arrow "" (fn (Typ.var name)) typ) type_ext typ
++  fold_right_type_ext (fun  name typ -> Typ.arrow Nolabel (fn (Typ.var name)) typ) type_ext typ
+ 
+ let core_type_of_type_decl { ptype_name = { txt = name }; ptype_params } =
+   Typ.constr (mknoloc (Lident name)) (List.map fst ptype_params)
+@@ -326,7 +326,7 @@ let derive path pstr_loc item attributes fn arg =
+         match deriver_expr with
+         | { pexp_desc = Pexp_ident name } ->
+           name, []
+-        | { pexp_desc = Pexp_apply ({ pexp_desc = Pexp_ident name }, ["",
++        | { pexp_desc = Pexp_apply ({ pexp_desc = Pexp_ident name }, [Nolabel,
+             { pexp_desc = Pexp_record (options, None) }]) } ->
+           name, options |> List.map (fun ({ txt }, expr) ->
+             String.concat "." (Longident.flatten txt), expr)
+@@ -396,7 +396,7 @@ let mapper =
+   in
+   let structure mapper items =
+     match items with
+-    | { pstr_desc = Pstr_type typ_decls; pstr_loc } as item :: rest when
++    | { pstr_desc = Pstr_type (_rec,typ_decls); pstr_loc } as item :: rest when
+         List.exists (fun ty -> has_attr "deriving" ty.ptype_attributes) typ_decls ->
+       Ast_helper.with_default_loc pstr_loc (fun () ->
+         derive_type_decl module_nesting typ_decls pstr_loc item
+@@ -426,7 +426,7 @@ let mapper =
+   in
+   let signature mapper items =
+     match items with
+-    | { psig_desc = Psig_type typ_decls; psig_loc } as item :: rest when
++    | { psig_desc = Psig_type (_rec,typ_decls); psig_loc } as item :: rest when
+         List.exists (fun ty -> has_attr "deriving" ty.ptype_attributes) typ_decls ->
+       Ast_helper.with_default_loc psig_loc (fun () ->
+         derive_type_decl module_nesting typ_decls psig_loc item
+diff --git a/src_plugins/ppx_deriving_create.ml b/src_plugins/ppx_deriving_create.ml
+index 824d7bd..05a59ce 100644
+--- a/src_plugins/ppx_deriving_create.ml
++++ b/src_plugins/ppx_deriving_create.ml
+@@ -42,31 +42,31 @@ let str_of_type ~options ~path ({ ptype_loc = loc } as type_decl) =
+       let fn =
+         match main with
+         | Some { pld_name = { txt = name }} ->
+-          Exp.fun_ "" None (pvar name) (record fields)
++          Exp.fun_ Nolabel None (pvar name) (record fields)
+         | None ->
+-          Exp.fun_ "" None (punit ()) (record fields)
++          Exp.fun_ Nolabel None (punit ()) (record fields)
+       in
+       List.fold_left (fun accum { pld_name = { txt = name }; pld_type; pld_attributes } ->
+         let attrs = pld_attributes @ pld_type.ptyp_attributes in
+         match attr_default attrs with
+-        | Some default -> Exp.fun_ ("?"^name) (Some default) (pvar name) accum
++        | Some default -> Exp.fun_ (Optional name) (Some default) (pvar name) accum
+         | None ->
+         if attr_split attrs then
+           match pld_type with
+           | [%type: [%t? lhs] * [%t? rhs] list] when name.[String.length name - 1] = 's' ->
+             let name' = String.sub name 0 (String.length name - 1) in
+-            Exp.fun_ name' None (pvar name')
+-              (Exp.fun_ ("?"^name) (Some [%expr []]) (pvar name)
++            Exp.fun_ (Labelled name') None (pvar name')
++              (Exp.fun_ (Optional name) (Some [%expr []]) (pvar name)
+                 [%expr let [%p pvar name] = [%e evar name'], [%e evar name] in [%e accum]])
+           | _ -> raise_errorf ~loc "[@deriving.%s.split] annotation requires a type of form \
+                                     'a * 'b list and label name ending with `s'" deriver
+         else
+           match pld_type with
+           | [%type: [%t? _] list] ->
+-            Exp.fun_ ("?"^name) (Some [%expr []]) (pvar name) accum
++            Exp.fun_ (Optional name) (Some [%expr []]) (pvar name) accum
+           | [%type: [%t? _] option] ->
+-            Exp.fun_ ("?"^name) None (pvar name) accum
+-          | _ -> Exp.fun_ name None (pvar name) accum)
++            Exp.fun_ (Optional name) None (pvar name) accum
++          | _ -> Exp.fun_ (Labelled name) None (pvar name) accum)
+           fn labels
+     | _ -> raise_errorf ~loc "%s can be derived only for record types" deriver
+   in
+@@ -86,30 +86,30 @@ let sig_of_type ~options ~path ({ ptype_loc = loc } as type_decl) =
+       let typ =
+         match main with
+         | Some { pld_name = { txt = name }; pld_type } ->
+-          Typ.arrow "" pld_type typ
++          Typ.arrow Nolabel pld_type typ
+         | None ->
+-          Typ.arrow "" (tconstr "unit" []) typ
++          Typ.arrow Nolabel (tconstr "unit" []) typ
+       in
+       List.fold_left (fun accum { pld_name = { txt = name; loc }; pld_type; pld_attributes } ->
+         let attrs = pld_type.ptyp_attributes @ pld_attributes in
+         match attr_default attrs with
+-        | Some _ -> Typ.arrow ("?"^name) (wrap_predef_option pld_type) accum
++        | Some _ -> Typ.arrow (Optional name) (wrap_predef_option pld_type) accum
+         | None ->
+         if attr_split attrs then
+           match pld_type with
+           | [%type: [%t? lhs] * [%t? rhs] list] when name.[String.length name - 1] = 's' ->
+             let name' = String.sub name 0 (String.length name - 1) in
+-            Typ.arrow name' lhs
+-              (Typ.arrow ("?"^name) (wrap_predef_option [%type: [%t rhs] list]) accum)
++            Typ.arrow (Labelled name') lhs
++              (Typ.arrow (Optional name) (wrap_predef_option [%type: [%t rhs] list]) accum)
+           | _ -> raise_errorf ~loc "[@deriving.%s.split] annotation requires a type of form \
+                                     'a * 'b list and label name ending with `s'" deriver
+         else
+           match pld_type with
+           | [%type: [%t? _] list] ->
+-            Typ.arrow ("?"^name) (wrap_predef_option pld_type) accum
++            Typ.arrow (Optional name) (wrap_predef_option pld_type) accum
+           | [%type: [%t? opt] option] ->
+-            Typ.arrow ("?"^name) (wrap_predef_option opt) accum
+-          | _ -> Typ.arrow name pld_type accum)
++            Typ.arrow (Optional name) (wrap_predef_option opt) accum
++          | _ -> Typ.arrow (Labelled name) pld_type accum)
+         typ labels
+     | _ -> raise_errorf ~loc "%s can only be derived for record types" deriver
+   in
+diff --git a/src_plugins/ppx_deriving_enum.ml b/src_plugins/ppx_deriving_enum.ml
+index ae4a945..633c574 100644
+--- a/src_plugins/ppx_deriving_enum.ml
++++ b/src_plugins/ppx_deriving_enum.ml
+@@ -29,7 +29,7 @@ let mappings_of_type type_decl =
+     | Ptype_variant constrs, _ ->
+       `Regular,
+       List.fold_left (fun (acc, mappings) { pcd_name; pcd_args; pcd_attributes; pcd_loc } ->
+-          if pcd_args <> [] then
++          if pcd_args <> Pcstr_tuple [] then
+             raise_errorf ~loc:pcd_loc
+                          "%s can be derived only for argumentless constructors" deriver;
+           map acc mappings pcd_attributes pcd_name)
+diff --git a/src_plugins/ppx_deriving_eq.ml b/src_plugins/ppx_deriving_eq.ml
+index 598bde9..43ed905 100644
+--- a/src_plugins/ppx_deriving_eq.ml
++++ b/src_plugins/ppx_deriving_eq.ml
+@@ -131,6 +131,11 @@ let str_of_type ~options ~path group_def ({ ptype_loc = loc } as type_decl) =
+         | _ :: _ :: _ -> [Exp.case (pvar "_") [%expr false]] in
+       let cases =
+         (constrs |> List.map (fun { pcd_name = { txt = name }; pcd_args = typs } ->
++          let typs =
++            match typs with
++            | Pcstr_tuple typs -> typs
++            | Pcstr_record _ -> assert false
++          in
+           exprsn group_def typs |>
+           Ppx_deriving.(fold_exprs ~unit:[%expr true] (binop_reduce [%expr (&&)])) |>
+           Exp.case (ptuple [pconstr name (pattn `lhs typs);
+diff --git a/src_plugins/ppx_deriving_fold.ml b/src_plugins/ppx_deriving_fold.ml
+index e1b7117..cd4bd97 100644
+--- a/src_plugins/ppx_deriving_fold.ml
++++ b/src_plugins/ppx_deriving_fold.ml
+@@ -64,6 +64,11 @@ let str_of_type ~options ~path ({ ptype_loc = loc } as type_decl) =
+     | Ptype_abstract, Some manifest -> expr_of_typ manifest
+     | Ptype_variant constrs, _ ->
+       let cases = constrs |> List.map (fun { pcd_name = { txt = name' }; pcd_args } ->
++        let pcd_args =
++          match pcd_args with
++          | Pcstr_tuple typs -> typs
++          | Pcstr_record _ -> assert false
++        in
+         let args = pcd_args |> List.mapi (fun i typ ->
+                       [%expr [%e expr_of_typ typ] acc [%e evar (argn i)]]) in
+         Exp.case (pconstr name' (List.mapi (fun i _ -> pvar (argn i)) pcd_args))
+diff --git a/src_plugins/ppx_deriving_iter.ml b/src_plugins/ppx_deriving_iter.ml
+index 75c1979..c8d473a 100644
+--- a/src_plugins/ppx_deriving_iter.ml
++++ b/src_plugins/ppx_deriving_iter.ml
+@@ -62,6 +62,11 @@ let str_of_type ~options ~path ({ ptype_loc = loc } as type_decl) =
+     | Ptype_variant constrs, _ ->
+       constrs |>
+       List.map (fun { pcd_name = { txt = name' }; pcd_args } ->
++        let pcd_args =
++          match pcd_args with
++          | Pcstr_tuple typs -> typs
++          | Pcstr_record _ -> assert false
++        in
+         let args = List.mapi (fun i typ -> app (expr_of_typ typ) [evar (argn i)]) pcd_args in
+         let result =
+           match args with
+diff --git a/src_plugins/ppx_deriving_map.ml b/src_plugins/ppx_deriving_map.ml
+index 11bb56d..dc9d91c 100644
+--- a/src_plugins/ppx_deriving_map.ml
++++ b/src_plugins/ppx_deriving_map.ml
+@@ -60,6 +60,11 @@ let str_of_type ~options ~path ({ ptype_loc = loc } as type_decl) =
+     | Ptype_variant constrs, _ ->
+       constrs |>
+       List.map (fun { pcd_name = { txt = name' }; pcd_args } ->
++        let pcd_args =
++          match pcd_args with
++          | Pcstr_tuple typs -> typs
++          | Pcstr_record _ -> assert false
++        in
+         let args = List.mapi (fun i typ -> app (expr_of_typ typ) [evar (argn i)]) pcd_args in
+         Exp.case (pconstr name' (List.mapi (fun i _ -> pvar (argn i)) pcd_args))
+                  (constr name' args)) |>
+diff --git a/src_plugins/ppx_deriving_ord.ml b/src_plugins/ppx_deriving_ord.ml
+index 71618f8..dc53f77 100644
+--- a/src_plugins/ppx_deriving_ord.ml
++++ b/src_plugins/ppx_deriving_ord.ml
+@@ -163,10 +163,16 @@ let str_of_type ~options ~path group_def ({ ptype_loc = loc } as type_decl) =
+       let int_cases =
+           constrs |> List.mapi (fun i { pcd_name = { txt = name }; pcd_args } ->
+             match pcd_args with
+-            | [] -> Exp.case (pconstr name []) (int i)
+-            | _  -> Exp.case (pconstr name (List.map (fun _ -> [%pat? _]) pcd_args)) (int i))
++            | Pcstr_tuple [] -> Exp.case (pconstr name []) (int i)
++            | Pcstr_tuple pcd_args  -> Exp.case (pconstr name (List.map (fun _ -> [%pat? _]) pcd_args)) (int i)
++            | Pcstr_record _ -> assert false)
+       and cases =
+         constrs |> List.map (fun { pcd_name = { txt = name }; pcd_args = typs } ->
++          let typs =
++            match typs with
++            | Pcstr_tuple typs -> typs
++            | Pcstr_record _ -> assert false
++          in
+           exprsn group_def typs |> List.rev |> reduce_compare |>
+           Exp.case (ptuple [pconstr name (pattn `lhs typs);
+                             pconstr name (pattn `rhs typs)])) in
+diff --git a/src_plugins/ppx_deriving_show.ml b/src_plugins/ppx_deriving_show.ml
+index 0276b0b..8f17759 100644
+--- a/src_plugins/ppx_deriving_show.ml
++++ b/src_plugins/ppx_deriving_show.ml
+@@ -165,7 +165,12 @@ let str_of_type ~options ~path group_def ({ ptype_loc = loc } as type_decl) =
+     | Ptype_variant constrs, _ ->
+       let cases =
+         constrs |> List.map (fun { pcd_name = { txt = name' }; pcd_args } ->
+-          let constr_name = Ppx_deriving.expand_path ~path name' in
++            let constr_name = Ppx_deriving.expand_path ~path name' in
++            let pcd_args =
++              match pcd_args with
++              | Pcstr_tuple typs -> typs
++              | Pcstr_record _ -> assert false
++            in
+           let args = List.mapi (fun i typ -> app (expr_of_typ group_def typ) [evar (argn i)]) pcd_args in
+           let result =
+             match args with
