@@ -1,0 +1,3 @@
+#!/bin/bash -ue
+
+exec /usr/bin/time -o %{prefix}%/var/timings/$(basename $PWD)-$(IFS=-; echo -n "-${*//\//%}").times make "$@"

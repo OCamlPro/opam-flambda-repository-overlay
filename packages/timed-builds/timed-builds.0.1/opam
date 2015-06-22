@@ -1,0 +1,13 @@
+opam-version: "1.2"
+install: [
+  [ "mkdir" "-p" "%{prefix}%/var/timings" ]
+  [ "mkdir" "-p" "%{share}%/timed-builds" ]
+  [ "sh" "-c" "sed -n 's#^make:\\(.*\\)$#\\1#p' '%{prefix}%/config/global-config.config' >%{share}%/timed-builds/oldmake" ]
+  [ "sed" "-i" "s#^make:.*$#make: \"%{bin}%/timed_make\"#" "%{prefix}%/config/global-config.config" ]
+]
+remove: [
+  [ "sh" "-c" "if [ -e '%{share}%/timed-builds/oldmake' ]; then sed -i 's#^make:.*$#make:'\"$(cat %{share}%/timed-builds/oldmake)\"'#' '%{prefix}%/config/global-config.config'; fi" ]
+  [ "rm" "-f" "%{share}%/timed-builds/oldmake" ]
+  [ "rm" "-rf" "%{prefix}%/var/timings" ]
+]
+substs: "timed_make"

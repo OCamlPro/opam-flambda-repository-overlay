@@ -1,0 +1,3 @@
+Wrap calls to make in the current switch to write timings
+
+Timings are written to <switch>/var/timings (using /usr/bin/time -o)
