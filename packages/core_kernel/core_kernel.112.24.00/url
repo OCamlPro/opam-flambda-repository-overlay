@@ -1,2 +1,1 @@
-archive: "https://ocaml.janestreet.com/ocaml-core/112.24/files/core_kernel-112.24.tar.gz"
-checksum: "776c6560c005a355f6a801c0edf211f9"
+archive: "https://github.com/mshinwell/core_kernel/archive/112.24.00-flambda-after-obj-array-fix.tar.gz"
