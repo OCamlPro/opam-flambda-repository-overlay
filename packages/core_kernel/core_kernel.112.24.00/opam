@@ -4,7 +4,6 @@ authors: ["Jane Street Capital LLC <opensource@janestreet.com>"]
 homepage: "https://github.com/janestreet/core_kernel"
 license: "Apache-2.0"
 build: [
-  ["sed" "-i" "s/_heap_size/_heap_wsz/g" "lib/core_gc_stubs.c"]
   [make]
   [make "install"]
 ]
