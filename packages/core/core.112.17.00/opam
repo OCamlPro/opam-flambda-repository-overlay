@@ -27,5 +27,5 @@ depends: ["camlp4"
           "variantslib"   {>= "109.15.00" & < "109.16.00"}]
 ocaml-version: [>= "4.02.1"]
 patches: [
-  "unix_stubs.patch" { ocaml-version >= "112.17.00" }
+  "unix_stubs.patch" { ocaml-version >= "4.03" }
 ]
