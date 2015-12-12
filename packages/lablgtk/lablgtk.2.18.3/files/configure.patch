@@ -1,0 +1,44 @@
+diff --git a/configure b/configure
+index 8cdc264..f8e9b4d 100755
+--- a/configure
++++ b/configure
+@@ -2826,7 +2826,7 @@ fi
+ # get the C compiler used by ocamlc
+ if test -z "$CC" ; then
+   touch conftest.c
+-  CC=$($CAMLC -verbose -c conftest.c 2>&1 | head -1 | sed 's/^+ \([^ ]*\) .*$/\1/')
++  CC=$($CAMLC -verbose -c conftest.c 2>&1 | sed -n 's/^+ \([^ ]*\) .*$/\1/p')
+   echo OCaml uses $CC to compile C files
+ fi
+ ac_ext=c
+@@ -3623,7 +3623,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking platform" >&5
+ $as_echo_n "checking platform... " >&6; }
+ echo "print_endline Sys.os_type ;;" > conftest.ml
+-ac_ocaml_platform=$(ocaml conftest.ml | tr -d '\r')
++ac_ocaml_platform=$(ocaml conftest.ml 2>/dev/null | tr -d '\r')
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_ocaml_platform" >&5
+ $as_echo "$ac_ocaml_platform" >&6; }
+ if test $ac_ocaml_platform = Win32 ; then
+diff --git a/configure.in b/configure.in
+index eec0913..57a68ef 100644
+--- a/configure.in
++++ b/configure.in
+@@ -214,7 +214,7 @@ AC_PROG_RANLIB
+ # get the C compiler used by ocamlc
+ if test -z "$CC" ; then
+   touch conftest.c
+-  CC=$($CAMLC -verbose -c conftest.c 2>&1 | head -1 | sed ['s/^+ \([^ ]*\) .*$/\1/'])
++  CC=$($CAMLC -verbose -c conftest.c 2>&1 | sed -n ['s/^+ \([^ ]*\) .*$/\1/p'])
+   echo [OCaml uses $CC to compile C files]
+ fi
+ AC_PROG_CC
+@@ -222,7 +222,7 @@ AC_PROG_CC
+ # platform
+ AC_MSG_CHECKING(platform)
+ echo "print_endline Sys.os_type ;;" > conftest.ml
+-ac_ocaml_platform=$(ocaml conftest.ml | tr -d '\r')
++ac_ocaml_platform=$(ocaml conftest.ml 2>/dev/null | tr -d '\r')
+ AC_MSG_RESULT($ac_ocaml_platform)
+ if test $ac_ocaml_platform = Win32 ; then
+     OCAMLWIN32=yes
