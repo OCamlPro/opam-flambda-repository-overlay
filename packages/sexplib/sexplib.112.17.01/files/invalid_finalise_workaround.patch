@@ -1,0 +1,12 @@
+diff --git a/lib/conv.ml b/lib/conv.ml
+index 9a521b7..5347c82 100644
+--- a/lib/conv.ml
++++ b/lib/conv.ml
+@@ -203,7 +203,6 @@ module Exn_converter = struct
+         loop ()
+       else begin
+         exn_id_map := new_exn_id_map;
+-        if finalise then Gc.finalise clean_up_handler (Obj.extension_constructor exn)
+       end
+     in
+     loop ()

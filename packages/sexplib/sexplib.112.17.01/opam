@@ -17,4 +17,4 @@ conflicts: [
   "type_conv" {>= "112.02.00"}
 ]
 ocaml-version: [>= "4.02.1"]
-patches: "trunk_fix.patch"
+patches: ["trunk_fix.patch" "invalid_finalise_workaround.patch"]
