@@ -1,0 +1,65 @@
+From a0ca174b05e9be8aaa0765854fef94aa27417ed5 Mon Sep 17 00:00:00 2001
+From: Pierre Chambart <pierre.chambart@ocamlpro.com>
+Date: Thu, 7 Jan 2016 03:04:13 +0100
+Subject: [PATCH 2/2] fix_core_gc_window_size
+
+---
+ lib/core_gc.ml  | 7 +++++--
+ lib/core_gc.mli | 2 ++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/lib/core_gc.ml b/lib/core_gc.ml
+index 210f5bb..896068b 100644
+--- a/lib/core_gc.ml
++++ b/lib/core_gc.ml
+@@ -59,6 +59,7 @@ module Control = struct
+       mutable max_overhead : int; (* Heap compaction is triggered when the estimated amount of "wasted" memory is more than max_overhead percent of the amount of live data. If max_overhead is set to 0, heap compaction is triggered at the end of each major GC cycle (this setting is intended for testing purposes only). If max_overhead >= 1000000, compaction is never triggered. Default: 500. *)
+       mutable stack_limit : int; (* The maximum size of the stack (in words). This is only relevant to the byte-code runtime, as the native code runtime uses the operating system's stack. Default: 256k. *)
+       mutable allocation_policy : int; (** The policy used for allocating in the heap.  Possible values are 0 and 1.  0 is the next-fit policy, which is quite fast but can result in fragmentation.  1 is the first-fit policy, which can be slower in some cases but can be better for programs with fragmentation problems.  Default: 0. *)
++      window_size : int;
+     } with compare, bin_io, sexp, fields
+   end
+ 
+@@ -81,7 +82,8 @@ let tune__field logger ?(fmt = ("%d" : (_, _, _) format)) name arg current =
+   *\(.*\) -> \1 = f "\1" \1 c.\1;
+ *)
+ let tune ?logger ?minor_heap_size ?major_heap_increment ?space_overhead
+-    ?verbose ?max_overhead ?stack_limit ?allocation_policy () =
++    ?verbose ?max_overhead ?stack_limit ?allocation_policy
++    ?window_size () =
+   let c = get () in
+   let f = tune__field logger in
+   set {
+@@ -93,7 +95,8 @@ let tune ?logger ?minor_heap_size ?major_heap_increment ?space_overhead
+     max_overhead = f "max_overhead" max_overhead c.max_overhead;
+     stack_limit = f "stack_limit" stack_limit c.stack_limit;
+     allocation_policy = f "allocation_policy" allocation_policy
+-      c.allocation_policy
++        c.allocation_policy;
++    window_size = f "window_size" window_size c.window_size;
+   }
+ ;;
+ 
+diff --git a/lib/core_gc.mli b/lib/core_gc.mli
+index 055b96a..196db56 100644
+--- a/lib/core_gc.mli
++++ b/lib/core_gc.mli
+@@ -148,6 +148,7 @@ module Control : sig
+         first-fit policy, which can be slower in some cases but
+         can be better for programs with fragmentation problems.
+         Default: 0. *)
++    window_size : int;
+   }
+   with bin_io, sexp, fields
+ 
+@@ -256,6 +257,7 @@ val tune
+   -> ?max_overhead:int
+   -> ?stack_limit:int
+   -> ?allocation_policy:int
++  -> ?window_size:int
+   -> unit
+   -> unit
+ 
+-- 
+2.1.4
+

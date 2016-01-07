@@ -1,0 +1,45 @@
+From ec59f02cfe5e9fbc492a420bc754b583b8d79dab Mon Sep 17 00:00:00 2001
+From: Pierre Chambart <pierre.chambart@ocamlpro.com>
+Date: Thu, 7 Jan 2016 03:00:26 +0100
+Subject: [PATCH 1/2] trunk_fix_for_core_gc_stubs
+
+---
+ lib/core_gc_stubs.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/lib/core_gc_stubs.c b/lib/core_gc_stubs.c
+index 3e5431b..e65c064 100644
+--- a/lib/core_gc_stubs.c
++++ b/lib/core_gc_stubs.c
+@@ -11,8 +11,8 @@ extern uintnat caml_allocated_words;
+ 
+ extern intnat caml_stat_minor_collections;
+ extern intnat caml_stat_major_collections;
+-extern intnat caml_stat_heap_size;
+-extern intnat caml_stat_top_heap_size;
++extern intnat caml_stat_heap_wsz;
++extern intnat caml_stat_top_heap_wsz;
+ extern intnat caml_stat_compactions;
+ extern intnat caml_stat_heap_chunks;
+ 
+@@ -54,7 +54,7 @@ CAMLprim value core_kernel_gc_major_collections(value unit __attribute__((unused
+ 
+ CAMLprim value core_kernel_gc_heap_words(value unit __attribute__((unused)))
+ {
+-  return Val_long(caml_stat_heap_size / sizeof (value));
++  return Val_long(caml_stat_heap_wsz / sizeof (value));
+ }
+ 
+ CAMLprim value core_kernel_gc_heap_chunks(value unit __attribute__((unused)))
+@@ -69,7 +69,7 @@ CAMLprim value core_kernel_gc_compactions(value unit __attribute__((unused)))
+ 
+ CAMLprim value core_kernel_gc_top_heap_words(value unit __attribute__((unused)))
+ {
+-  return Val_long(caml_stat_top_heap_size / sizeof (value));
++  return Val_long(caml_stat_top_heap_wsz / sizeof (value));
+ }
+ 
+ CAMLprim value core_kernel_gc_major_plus_minor_words(value unit __attribute__((unused)))
+-- 
+2.1.4
+

@@ -4,7 +4,6 @@ authors: ["Jane Street Capital LLC <opensource@janestreet.com>"]
 homepage: "https://github.com/janestreet/core_kernel"
 license: "Apache-2.0"
 build: [
-  ["sed" "-i" "s/_heap_size/_heap_wsz/g" "lib/core_gc_stubs.c"]
   [make]
   [make "install"]
 ]
@@ -24,4 +23,8 @@ depends: ["camlp4"
           "typerep"     {>= "112.17.00" & < "112.18.00"}
           "variantslib" {>= "109.15.00" & < "109.16.00"}]
 ocaml-version: [>= "4.02.1"]
-patches: "trunk_fix.patch"
+patches: [
+  "trunk_fix.patch"
+  "trunk_fix_for_core_gc.patch"
+  "trunk_fix_for_core_gc_stubs.patch"
+]
