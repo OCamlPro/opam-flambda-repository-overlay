@@ -1,0 +1,17 @@
+bin: [
+  "bin/gallina"
+  "bin/coqwc"
+  "bin/coqtop"
+  "bin/coqmktop"
+  "?bin/coqide"
+  "bin/coqdoc"
+  "bin/coqdep"
+  "bin/coqchk"
+  "bin/coqc"
+  "bin/coq_makefile"
+  "bin/coq-tex"
+]
+
+share: [
+  "ide/coq.png" {"coq.png"}
+]
