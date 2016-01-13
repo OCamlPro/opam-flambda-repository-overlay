@@ -1,2 +1,1 @@
-http: "http://compcert.inria.fr/release/compcert-2.4.tgz"
-checksum: "26f0f55316be9e8d65568d05e8dcb89f"
+src: "git://github.com/jhjourdan/CompCert.git#637b93da8450b5cf3ca09bdd0cd183cc2ba03a8c"
