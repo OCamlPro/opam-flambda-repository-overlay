@@ -1,1 +1,1 @@
-src: "git://scm.gforge.inria.fr/coq/coq.git#8b0fbcc6568308794ef198f8e96093b00ba90ca4"
+src: "git://github.com/mshinwell/coq#v8.5-name-clashes"
