@@ -1,4 +1,4 @@
-opam-version: "1.1"
+opam-version: "2.0"
 maintainer: "dev@clarus.me"
 homepage: "http://compcert.inria.fr/"
 license: "INRIA Non-Commercial License Agreement"
@@ -7,6 +7,8 @@ build: [
   [make "-j%{jobs}%"]
 ]
 depends: [
+  "ocaml"
   "coq" {>= "8.4pl4"}
   "menhir" {>= "20140422"}
 ]
+flags: light-uninstall

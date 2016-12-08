@@ -1,4 +1,4 @@
-opam-version: "1.2"
+opam-version: "2.0"
 maintainer: "jerome.vouillon@pps.univ-paris-diderot.fr"
 build: [
   ["./configure"
@@ -16,9 +16,10 @@ build: [
 ]
 remove: [["ocamlfind" "remove" "lwt"]]
 depends: [
+  "ocaml" {>= "4.01.0"}
   "oasis"
   "ocamlfind" {>= "1.5.0"}
-  ( "base-no-ppx" | "ppx_tools" )
+  ("base-no-ppx" | "ppx_tools")
 ]
 depopts: [
   "base-threads"
@@ -30,6 +31,7 @@ depopts: [
   "lablgtk"
 ]
 conflicts: [
- "react" {<"1.0.0"}
+  "ocaml-variants" {= "4.02.1+BER"}
+  "react" {< "1.0.0"}
 ]
-available: [ocaml-version >= "4.01.0" & compiler != "4.02.1+BER"]
+flags: light-uninstall

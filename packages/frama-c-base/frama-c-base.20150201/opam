@@ -1,4 +1,4 @@
-opam-version: "1.2.0"
+opam-version: "2.0"
 name: "frama-c-base"
 version: "20150201"
 maintainer: "francois.bobot@cea.fr"
@@ -66,10 +66,10 @@ build-test: [
 ]
 
 depends: [
-  "ocamlgraph" { = "1.8.5" | = "1.8.6" }
+  "ocaml" {>= "3.12" & != "4.02.0"}
+  "ocamlgraph" {= "1.8.5" | = "1.8.6"}
   "ocamlfind"
 ]
-
 depopts: [
   "zarith"
   "lablgtk"
@@ -84,4 +84,3 @@ conflicts: [
   "lablgtk" { < "2.18.2" } #for ocaml >= 4.02.1
 ]
 
-available: [ ocaml-version >= "3.12" & ocaml-version != "4.02.0" ]

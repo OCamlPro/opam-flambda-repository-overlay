@@ -1,4 +1,4 @@
-opam-version: "1.2"
+opam-version: "2.0"
 name: "bisect_ppx"
 version: "0.2"
 maintainer: "Leonid Rozenberg <leonidr@gmail.com>"
@@ -17,10 +17,13 @@ install: [
 ]
 remove: ["ocamlfind" "remove" "bisect_ppx"]
 depends: [
-  "ocamlfind" "ppx_tools" {build}
+  "ocaml"
+  "ocamlfind"
+  "ppx_tools" {build}
 ]
 patches: [
   "label.patch"
   "opam-manager.patch"
   "lexer.patch"
 ]
+flags: light-uninstall

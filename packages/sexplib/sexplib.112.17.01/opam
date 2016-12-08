@@ -1,4 +1,4 @@
-opam-version: "1"
+opam-version: "2.0"
 maintainer: "opensource@janestreet.com"
 build: [
   ["./configure" "--%{type_conv:enable}%-syntax"]
@@ -10,11 +10,14 @@ remove: [
   ["ocamlfind" "remove" "sexplib_num"]
   ["ocamlfind" "remove" "sexplib_unix"]
 ]
-depends: ["ocamlfind"]
+depends: [
+  "ocaml" {>= "4.02.1"}
+  "ocamlfind"
+]
 depopts: ["camlp4" "type_conv"]
 conflicts: [
   "type_conv" {< "112.01.00"}
   "type_conv" {>= "112.02.00"}
 ]
-ocaml-version: [>= "4.02.1"]
 patches: ["trunk_fix.patch" "invalid_finalise_workaround.patch"]
+flags: light-uninstall

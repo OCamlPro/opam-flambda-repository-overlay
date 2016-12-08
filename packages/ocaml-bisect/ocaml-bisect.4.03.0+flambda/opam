@@ -1,4 +1,4 @@
-opam-version: "1.3"
+opam-version: "2.0"
 maintainer: "contact@ocamlpro.com"
 build: [
   ["./configure" "-prefix" prefix "-with-bisect-opt"]
@@ -18,7 +18,6 @@ remove: [
   ["rm" "-f" "%{bin}%/ocamlopt-bisect.opt"]
   ["rm" "-f" "%{lib}%/ocaml-bisect"]
 ]
-depends: [
-  "bisect_ppx"
-]
+depends: ["ocaml" "bisect_ppx"]
 available: [ switch = "4.03.0+flambda" ]
+flags: light-uninstall

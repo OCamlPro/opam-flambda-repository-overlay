@@ -1,4 +1,4 @@
-opam-version: "1.2"
+opam-version: "2.0"
 maintainer: "dev@clarus.me"
 homepage: "https://coq.inria.fr/"
 dev-repo: "git://scm.gforge.inria.fr/coq/coq.git"
@@ -18,9 +18,10 @@ build: [
 ]
 remove: ["rm" "-R" "%{lib}%/coq"]
 depends: [
+  "ocaml" {>= "3.11.2"}
   "camlp4"
 ]
 conflicts: [
   "camlp5"
 ]
-available: [ ocaml-version >= "3.11.2" ] # According to INSTALL file
+flags: light-uninstall
