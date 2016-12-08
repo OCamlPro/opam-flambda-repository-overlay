@@ -1,8 +1,0 @@
-opam-version: "1.3"
-maintainer: "contact@ocamlpro.com"
-build: [
-  ["./configure" "-prefix" prefix "-with-debug-runtime"]
-  [make "world"]
-  [make "world.opt"]
-  [make "install"]
-]
